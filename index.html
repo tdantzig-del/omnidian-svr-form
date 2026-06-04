@@ -417,9 +417,11 @@ function addEquipItem() {
     '<div class="field-group"><span class="field-label">Manufacturer Case or RMA Number</span>' +
     '<input type="text" id="mfr_case_' + idx + '" placeholder="Case / RMA #"></div>' +
     '<div class="field-group"><span class="field-label">Original Equipment Details</span>' +
-    '<input type="text" id="orig_equip_' + idx + '" placeholder="Make / Model / MAC ID / Serial #"></div>' +
-    '<div class="field-group"><span class="field-label">Replacement Equipment Details</span>' +
-    '<input type="text" id="replacement_equip_' + idx + '" placeholder="Make / Model / MAC ID / Serial #"></div>';
+    '<input type="text" id="orig_make_' + idx + '" placeholder="Make / Model" style="margin-bottom:6px">' +
+    '<input type="text" id="orig_serial_' + idx + '" placeholder="MAC ID / Serial #"></div>' +
+    '<div class="field-group"><span class="field-label">Replacement Equipment Details<span class="req">*</span></span>' +
+    '<input type="text" id="repl_make_' + idx + '" placeholder="Make / Model" style="margin-bottom:6px">' +
+    '<input type="text" id="repl_serial_' + idx + '" placeholder="MAC ID / Serial #"></div>';
   wrap.appendChild(div);
 }
 
@@ -465,6 +467,10 @@ function saveForm() {
         var idx = item.id.replace('equip_item_','');
         var sel = document.getElementById('equip_type_' + idx);
         if (!sel || !sel.value) missing.push('Equipment type for item ' + idx);
+        var replMake = document.getElementById('repl_make_' + idx);
+        var replSerial = document.getElementById('repl_serial_' + idx);
+        if (!replMake || !replMake.value.trim()) missing.push('Replacement equipment make/model for item ' + idx);
+        if (!replSerial || !replSerial.value.trim()) missing.push('Replacement equipment MAC ID/Serial # for item ' + idx);
       });
     }
   }
