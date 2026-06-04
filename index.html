@@ -26,7 +26,7 @@
   .form-title-block h1{font-size:13px;font-weight:700;color:var(--white);line-height:1.3}
   .form-title-block p{font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px}
   .header-stripe{height:4px;background:linear-gradient(90deg,var(--orange),var(--orange-dark))}
-  .btn-clear-header{display:none;background:transparent;color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.25);border-radius:5px;padding:6px 12px;font-family:inherit;font-size:11px;font-weight:500;cursor:pointer;white-space:nowrap}
+  .btn-clear-header{display:block;background:transparent;color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.25);border-radius:5px;padding:6px 12px;font-family:inherit;font-size:11px;font-weight:500;cursor:pointer;white-space:nowrap}
 
   /* NO SAVE BANNER */
   .no-save-banner{background:var(--warn-bg);border-bottom:1px solid var(--warn-border);padding:10px 20px;font-size:13px;color:var(--warn-text);display:flex;align-items:center;gap:8px}
@@ -84,6 +84,17 @@
   .confirm-row input[type="checkbox"]{width:22px;height:22px;min-width:22px;accent-color:var(--orange);margin-top:2px;cursor:pointer}
   .confirm-row label{font-size:13px;font-weight:500;color:var(--white);cursor:pointer;line-height:1.5}
 
+
+  /* EQUIPMENT REPEATER */
+  .equip-item{background:var(--gray-100);border:1.5px solid var(--gray-300);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:12px;position:relative}
+  .equip-item-header{display:flex;justify-content:space-between;align-items:center}
+  .equip-item-num{font-size:11px;font-weight:600;color:var(--slate);text-transform:uppercase;letter-spacing:0.04em}
+  .btn-remove-equip{background:transparent;border:none;color:var(--slate);font-size:13px;cursor:pointer;padding:2px 6px;border-radius:4px;font-family:inherit}
+  .btn-remove-equip:hover{color:var(--no-active);background:var(--error-bg)}
+  .btn-add-equip{background:transparent;border:1.5px dashed var(--gray-300);border-radius:6px;padding:11px;font-family:inherit;font-size:13px;font-weight:600;color:var(--slate);cursor:pointer;width:100%;text-align:center;-webkit-tap-highlight-color:transparent}
+  .btn-add-equip:hover{border-color:var(--orange);color:var(--orange)}
+  .equip-other-block{display:none;margin-top:6px}
+
   /* ACTIONS */
   .form-actions{padding:20px;background:var(--white);border:1px solid var(--gray-200);border-top:1px solid var(--gray-200);display:flex;justify-content:flex-end;align-items:center;gap:12px}
   .btn-save{background:var(--orange);color:var(--white);border:none;border-radius:6px;padding:14px 28px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;min-height:50px;width:100%;justify-content:center;-webkit-tap-highlight-color:transparent}
@@ -99,7 +110,6 @@
     .form-body{border-radius:0}
     .form-actions{border-radius:0}
     .form-footer{border-radius:0 0 8px 8px}
-    .btn-clear-header{display:block}
     .btn-save{width:auto;padding:11px 26px;font-size:13px;min-height:auto}
     .section-fields{grid-template-columns:1fr 1fr;padding:18px 24px;gap:14px 24px}
     input[type="text"],input[type="date"],input[type="time"],select,textarea{font-size:13px;padding:9px 12px}
@@ -200,17 +210,6 @@
         </div>
 
         <div class="yn-wrap field-group span2">
-          <span class="field-label">Technicians familiar with all materials, PPE &amp; on-site equipment?<span class="req">*</span></span>
-          <div class="yn-toggle">
-            <input type="radio" class="yes-r" name="ppe_familiar" id="ppe_y" value="Yes">
-            <label for="ppe_y" class="yes-lbl" onclick="hideEl('warn_ppe_familiar')">Yes</label>
-            <input type="radio" class="no-r" name="ppe_familiar" id="ppe_n" value="No">
-            <label for="ppe_n" class="no-lbl" onclick="showEl('warn_ppe_familiar')">No</label>
-          </div>
-          <div class="inline-warn" id="warn_ppe_familiar">&#9888;&#65039; All technicians must be fully trained and equipped with required PPE before commencing work on site.</div>
-        </div>
-
-        <div class="yn-wrap field-group span2">
           <span class="field-label">Have you identified any potential hazards?<span class="req">*</span></span>
           <div class="yn-toggle">
             <input type="radio" class="yes-r" name="hazards" id="haz_y" value="Yes">
@@ -224,15 +223,6 @@
           <div class="field-group span2">
             <span class="field-label">Describe the potential hazard identified<span class="req">*</span></span>
             <textarea id="hazard_desc" class="short" placeholder="Describe hazard in detail..."></textarea>
-          </div>
-          <div class="yn-wrap field-group span2">
-            <span class="field-label">Have you documented the hazard barrier with photos?<span class="req">*</span></span>
-            <div class="yn-toggle">
-              <input type="radio" class="yes-r" name="hazard_photos" id="haz_photo_y" value="Yes">
-              <label for="haz_photo_y" class="yes-lbl">Yes</label>
-              <input type="radio" class="no-r" name="hazard_photos" id="haz_photo_n" value="No">
-              <label for="haz_photo_n" class="no-lbl">No</label>
-            </div>
           </div>
           <div class="banner orange span2">
             &#128248; <span><strong>Photo reminder:</strong> Upload photos documenting the hazard barrier when attaching this report.</span>
@@ -336,33 +326,8 @@
           </div>
         </div>
         <div id="equip_cond" class="cond">
-          <div class="field-group span2">
-            <span class="field-label">What equipment was replaced? (select all that apply)<span class="req">*</span></span>
-            <div class="multi-select">
-              <label><input type="checkbox" value="Inverter"><span>Inverter</span></label>
-              <label><input type="checkbox" value="Monitoring Device"><span>Monitoring Device</span></label>
-              <label><input type="checkbox" value="Module"><span>Module</span></label>
-              <label><input type="checkbox" value="Disconnect"><span>Disconnect</span></label>
-              <label><input type="checkbox" value="Fuse"><span>Fuse</span></label>
-              <label><input type="checkbox" value="Circuit Breaker"><span>Circuit Breaker</span></label>
-              <label id="other_lbl"><input type="checkbox" id="cb_other" value="Other"><span>Other</span></label>
-            </div>
-            <div id="other_text_block" style="display:none;margin-top:10px">
-              <input type="text" id="equip_other_text" placeholder="Describe other equipment...">
-            </div>
-          </div>
-          <div class="field-group span2">
-            <span class="field-label">Manufacturer Case or RMA Number</span>
-            <input type="text" id="mfr_case" placeholder="Case / RMA #">
-          </div>
-          <div class="field-group span2">
-            <span class="field-label">Original Equipment Details</span>
-            <input type="text" id="orig_equip" placeholder="Make / Model / MAC ID / Serial #">
-          </div>
-          <div class="field-group span2">
-            <span class="field-label">Replacement Equipment Details</span>
-            <input type="text" id="replacement_equip" placeholder="Make / Model / MAC ID / Serial #">
-          </div>
+          <div id="equip_items_wrap"></div>
+          <button type="button" class="btn-add-equip" onclick="addEquipItem()">+ Add equipment item</button>
         </div>
       </div>
     </div>
@@ -425,22 +390,48 @@ function resetCond(c) {
   c.querySelectorAll('input[type=radio]').forEach(function(r){ r.checked=false; });
   c.querySelectorAll('input[type=text],textarea').forEach(function(i){ i.value=''; });
   c.querySelectorAll('input[type=checkbox]').forEach(function(i){ i.checked=false; });
-  c.querySelectorAll('.multi-select label').forEach(function(l){ l.classList.remove('checked'); });
   c.querySelectorAll('.cond').forEach(function(sub){ sub.classList.remove('show'); resetCond(sub); });
   c.querySelectorAll('.inline-warn').forEach(function(w){ w.classList.remove('show'); });
-  var ob=document.getElementById('other_text_block'); if(ob&&c.contains(ob)) ob.style.display='none';
+  var ew = document.getElementById('equip_items_wrap');
+  if (ew && c.contains(ew)) { ew.innerHTML = ''; equipCount = 0; }
 }
 
-document.querySelectorAll('.multi-select input[type=checkbox]').forEach(function(cb){
-  cb.addEventListener('change', function(){ this.closest('label').classList.toggle('checked', this.checked); });
-});
+var equipCount = 0;
+var EQUIP_TYPES = ['Inverter','Monitoring Device','Module','Disconnect','Fuse','Circuit Breaker','Other'];
 
-var cbOther = document.getElementById('cb_other');
-if(cbOther) {
-  cbOther.addEventListener('change', function(){
-    var b=document.getElementById('other_text_block');
-    if(b) b.style.display = this.checked ? 'block' : 'none';
-  });
+function addEquipItem() {
+  equipCount++;
+  var idx = equipCount;
+  var wrap = document.getElementById('equip_items_wrap');
+  var div = document.createElement('div');
+  div.className = 'equip-item';
+  div.id = 'equip_item_' + idx;
+  var opts = EQUIP_TYPES.map(function(t){ return '<option value="' + t + '">' + t + '</option>'; }).join('');
+  div.innerHTML = '<div class="equip-item-header"><span class="equip-item-num">Item ' + idx + '</span>' +
+    '<button type="button" class="btn-remove-equip" onclick="removeEquipItem(' + idx + ')">Remove</button></div>' +
+    '<div class="field-group"><span class="field-label">Equipment type<span class="req">*</span></span>' +
+    '<select id="equip_type_' + idx + '" onchange="toggleEquipOther(' + idx + ')">' +
+    '<option value="" disabled selected>Select type</option>' + opts + '</select></div>' +
+    '<div class="equip-other-block" id="equip_other_block_' + idx + '">' +
+    '<input type="text" id="equip_other_' + idx + '" placeholder="Describe other equipment..."></div>' +
+    '<div class="field-group"><span class="field-label">Manufacturer Case or RMA Number</span>' +
+    '<input type="text" id="mfr_case_' + idx + '" placeholder="Case / RMA #"></div>' +
+    '<div class="field-group"><span class="field-label">Original Equipment Details</span>' +
+    '<input type="text" id="orig_equip_' + idx + '" placeholder="Make / Model / MAC ID / Serial #"></div>' +
+    '<div class="field-group"><span class="field-label">Replacement Equipment Details</span>' +
+    '<input type="text" id="replacement_equip_' + idx + '" placeholder="Make / Model / MAC ID / Serial #"></div>';
+  wrap.appendChild(div);
+}
+
+function removeEquipItem(idx) {
+  var el = document.getElementById('equip_item_' + idx);
+  if (el) el.parentNode.removeChild(el);
+}
+
+function toggleEquipOther(idx) {
+  var sel = document.getElementById('equip_type_' + idx);
+  var block = document.getElementById('equip_other_block_' + idx);
+  if (block) block.style.display = sel && sel.value === 'Other' ? 'block' : 'none';
 }
 
 function gv(id){ var el=document.getElementById(id); return el ? el.value.trim() : ''; }
@@ -448,17 +439,14 @@ function gr(name){ var c=document.querySelector("input[name=\""+name+"\"]:checke
 
 function saveForm() {
   var missing = [];
-  if(!gv('sf_wo'))           missing.push('Salesforce Work Order #');
+  if(!/^WO-\d{5,}$/.test(gv('sf_wo'))) missing.push('Salesforce Work Order # (must be WO- followed by at least 5 digits, e.g. WO-12345)');
   if(!gv('home_address'))    missing.push('Home Address');
   if(!gv('visit_date'))      missing.push('Date');
   if(!gv('arrival_time'))    missing.push('Arrival Time');
   if(!gv('techs_on_site'))   missing.push('Personnel Names');
-  if(!gv('weather'))         missing.push('Weather Conditions');
   if(!gr('wo_reviewed'))     missing.push('Work Order Reviewed?');
-  if(!gr('ppe_familiar'))    missing.push('Technicians Familiar with PPE?');
   if(!gr('hazards'))         missing.push('Potential Hazards?');
   if(gr('hazards')==='Yes' && !gv('hazard_desc')) missing.push('Hazard Description');
-  if(gr('hazards')==='Yes' && !gr('hazard_photos')) missing.push('Hazard Photos Documented?');
   if(!gr('roof_access'))     missing.push('Roof Access Required?');
   if(gr('roof_access')==='Yes' && !gr('roof_safe')) missing.push('Roof Condition Safe?');
   if(gr('roof_safe')==='No' && !gv('roof_unsafe_details')) missing.push('Unsafe Roof Condition Details');
@@ -468,7 +456,18 @@ function saveForm() {
   if(gr('elec_issues')==='Yes' && !gv('elec_root_cause')) missing.push('Electrical Root Cause');
   if(gr('elec_issues')==='Yes' && !gv('elec_test_results')) missing.push('Electrical Test Results');
   if(!gr('equip_replaced'))  missing.push('Equipment Replaced?');
-  if(gr('equip_replaced')==='Yes' && document.querySelectorAll('.multi-select input:checked').length===0) missing.push('Equipment Type');
+  if(gr('equip_replaced')==='Yes') {
+    var items = document.querySelectorAll('.equip-item');
+    if (items.length === 0) {
+      missing.push('Equipment details (click Add equipment item)');
+    } else {
+      items.forEach(function(item) {
+        var idx = item.id.replace('equip_item_','');
+        var sel = document.getElementById('equip_type_' + idx);
+        if (!sel || !sel.value) missing.push('Equipment type for item ' + idx);
+      });
+    }
+  }
   if(!gr('equip_op'))        missing.push('Equipment Operational?');
   if(gr('equip_op')==='No' && !gv('not_op_why')) missing.push('Why Not Operational');
   if(!gv('checkout_date'))   missing.push('Check Out Date');
@@ -492,8 +491,9 @@ function clearForm() {
   document.querySelectorAll('select').forEach(function(el){el.selectedIndex=0;});
   document.querySelectorAll('.cond').forEach(function(el){el.classList.remove('show');});
   document.querySelectorAll('.inline-warn').forEach(function(el){el.classList.remove('show');});
-  document.querySelectorAll('.multi-select label').forEach(function(el){el.classList.remove('checked');});
-  document.getElementById('other_text_block').style.display='none';
+  var equipWrap = document.getElementById('equip_items_wrap');
+  if (equipWrap) equipWrap.innerHTML = '';
+  equipCount = 0;
   var t=new Date().toISOString().split('T')[0];
   ['visit_date','checkout_date'].forEach(function(id){var el=document.getElementById(id);if(el)el.value=t;});
   window.scrollTo({top:0,behavior:'smooth'});
