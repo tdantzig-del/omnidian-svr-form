@@ -464,7 +464,8 @@ function resetCond(c) {
   c.querySelectorAll('select').forEach(function(s){ s.selectedIndex=0; });
   c.querySelectorAll('.cond').forEach(function(sub){ sub.classList.remove('show'); resetCond(sub); });
   c.querySelectorAll('.inline-warn').forEach(function(w){ w.classList.remove('show'); });
-  var ew=document.getElementById('equip_items_wrap'); if(ew&&c.contains(ew)){ew.innerHTML='';equipCount=0;}
+  var ew=document.getElementById('equip_items_wrap');
+  if(ew&&c.contains(ew)){ ew.innerHTML=''; equipCount=0; }
 }
 
 var equipCount=0;
@@ -472,75 +473,155 @@ var equipMode='new';
 var EQUIP_TYPES=['Inverter','Monitoring Device','Module','Disconnect','Fuse','Circuit Breaker','Other'];
 
 function setEquipMode(mode) {
+  // If items already added, warn before switching
+  var existing=document.querySelectorAll('.equip-item');
+  if(existing.length>0) {
+    var hasData=false;
+    existing.forEach(function(item){
+      var idx=item.id.replace('equip_item_','');
+      var sel=document.getElementById('equip_type_'+idx);
+      if(sel&&sel.value) hasData=true;
+    });
+    if(hasData) {
+      if(!confirm('Switching RMA type will clear your equipment entries. Continue?')) {
+        // Revert radio selection to previous mode
+        var prevVal=equipMode==='new'?'Yes - New RMA':'Yes - Open RMA';
+        document.querySelectorAll('input[name=equip_rma]').forEach(function(r){
+          r.checked=(r.value===prevVal);
+        });
+        return;
+      }
+    }
+    // Clear items
+    var wrap=document.getElementById('equip_items_wrap');
+    if(wrap){ wrap.innerHTML=''; equipCount=0; }
+  }
   equipMode=mode;
-  document.querySelectorAll('.equip-item').forEach(function(item){
-    var idx=item.id.replace('equip_item_','');
-    // Replacement fields: show for open RMA only
-    var rb=document.getElementById('repl_block_'+idx);
-    if(rb) rb.style.display=mode==='open'?'flex':'none';
-    // Equipment type label
-    var lbl=document.getElementById('equip_type_lbl_'+idx);
-    if(lbl) lbl.textContent=mode==='new'?'What equipment will need to be replaced?':'Equipment type';
-    // Shipping destination: show for new RMA only
-    var shipField=document.getElementById('rma_ship_'+idx);
-    if(shipField&&shipField.closest('.field-group')) shipField.closest('.field-group').style.display=mode==='new'?'flex':'none';
-    var shipOther=document.getElementById('ship_other_block_'+idx);
-    if(shipOther) shipOther.style.display='none';
-    // Orig make/model: show for new RMA only
-    var origMake=document.getElementById('orig_make_'+idx);
-    if(origMake&&origMake.closest('.field-group')) origMake.closest('.field-group').style.display=mode==='new'?'flex':'none';
-  });
+  // Auto-add first item
+  addEquipItem();
 }
 
 function addEquipItem() {
   equipCount++;
   var idx=equipCount;
   var wrap=document.getElementById('equip_items_wrap');
+
+  // Hide add button on previous item if exists
+  var prevBtn=document.getElementById('add_btn_'+(idx-1));
+  if(prevBtn) prevBtn.style.display='none';
+
   var div=document.createElement('div');
   div.className='equip-item';
   div.id='equip_item_'+idx;
-  var opts=EQUIP_TYPES.map(function(t){return '<option value="'+t+'">'+t+'</option>';}).join('');
-  var showRepl=equipMode==='open'?'flex':'none';
+  var opts=EQUIP_TYPES.map(function(t){
+    return '<option value="'+t+'">'+t+'</option>';
+  }).join('');
+
+  var label=equipMode==='new'?'What equipment will need to be replaced?':'Equipment type';
+
   div.innerHTML=
-    '<div class="equip-item-header"><span class="equip-item-num">Item '+idx+'</span>'+
-    '<button type="button" class="btn-remove-equip" onclick="removeEquipItem('+idx+')">Remove</button></div>'+
-    '<div class="field-group"><span class="field-label" id="equip_type_lbl_'+idx+'">'+(equipMode==='new'?'What equipment will need to be replaced?':'Equipment type')+'<span class="req">*</span></span>'+
-    '<select id="equip_type_'+idx+'" onchange="toggleEquipOther('+idx+')">'+
-    '<option value="" disabled selected>Select type</option>'+opts+'</select></div>'+
-    '<div class="equip-other-block" id="equip_other_block_'+idx+'" style="display:none">'+
-    '<input type="text" id="equip_other_'+idx+'" placeholder="Describe other equipment..."></div>'+
-    '<div class="field-group"><span class="field-label">Manufacturer Case or RMA Number</span>'+
-    '<input type="text" id="mfr_case_'+idx+'" placeholder="Case / RMA #"></div>'+
-    (equipMode==='new' ?
-      '<div class="field-group"><span class="field-label">Where is the RMA being shipped to?<span class="req">*</span></span>'+
-      '<select id="rma_ship_'+idx+'" onchange="toggleShipOther('+idx+')">'+
-      '<option value="" disabled selected>Select shipping destination</option>'+
-      '<option value="Homeowner address as listed on this work order">Homeowner address as listed on this work order</option>'+
-      '<option value="Other">Other</option></select></div>'+
-      '<div id="ship_other_block_'+idx+'" style="display:none;flex-direction:column;gap:8px;margin-top:6px">'+
-      '<input type="text" id="ship_address_'+idx+'" placeholder="Shipping address...">'+
-      '<input type="text" id="ship_reason_'+idx+'" placeholder="Reason for alternate shipping address..."></div>'+
-      '<div class="field-group"><span class="field-label">Original Equipment &mdash; Make / Model</span>'+
-      '<input type="text" id="orig_make_'+idx+'" placeholder="Make / Model"></div>'
-    : '') +
-    '<div class="field-group"><span class="field-label">Original Equipment &mdash; MAC ID or Serial #</span>'+
-    '<input type="text" id="orig_serial_'+idx+'" placeholder="MAC ID or Serial #"></div>'+
-    '<div id="repl_block_'+idx+'" style="display:'+showRepl+';flex-direction:column;gap:12px">'+
-    '<div class="field-group"><span class="field-label">Replacement Equipment &mdash; Make / Model<span class="req">*</span></span>'+
-    '<input type="text" id="repl_make_'+idx+'" placeholder="Make / Model"></div>'+
-    '<div class="field-group"><span class="field-label">Replacement Equipment &mdash; MAC ID or Serial #<span class="req">*</span></span>'+
-    '<input type="text" id="repl_serial_'+idx+'" placeholder="MAC ID or Serial #"></div></div>';
+    '<div class="equip-item-header">'+
+      '<span class="equip-item-num">Item '+idx+'</span>'+
+      (idx>1?'<button type="button" class="btn-remove-equip" onclick="removeEquipItem('+idx+')">Remove</button>':'')+
+    '</div>'+
+    '<div class="field-group">'+
+      '<span class="field-label" id="equip_type_lbl_'+idx+'">'+label+'<span class="req">*</span></span>'+
+      '<select id="equip_type_'+idx+'" onchange="onEquipTypeSelect('+idx+')">'+
+        '<option value="" disabled selected>Select type</option>'+opts+
+      '</select>'+
+    '</div>'+
+    '<div id="equip_fields_'+idx+'" style="display:none;flex-direction:column;gap:12px"></div>'+
+    '<div id="add_btn_'+idx+'" style="display:none;margin-top:4px">'+
+      '<button type="button" class="btn-add-equip" onclick="addEquipItem()">+ Add another item</button>'+
+    '</div>';
+
   wrap.appendChild(div);
 }
 
-function removeEquipItem(idx){
-  var el=document.getElementById('equip_item_'+idx); if(el) el.parentNode.removeChild(el);
-}
-function toggleEquipOther(idx){
+function onEquipTypeSelect(idx) {
   var sel=document.getElementById('equip_type_'+idx);
-  var b=document.getElementById('equip_other_block_'+idx);
-  if(b) b.style.display=sel&&sel.value==='Other'?'block':'none';
+  var fieldsWrap=document.getElementById('equip_fields_'+idx);
+  if(!sel||!fieldsWrap) return;
+
+  var isOther=sel.value==='Other';
+
+  // Build fields based on mode
+  var html='';
+
+  // Other free text
+  html+=
+    '<div id="equip_other_block_'+idx+'" style="display:'+(isOther?'block':'none')+'">'+
+      '<input type="text" id="equip_other_'+idx+'" placeholder="Describe other equipment...">'+
+    '</div>';
+
+  // RMA number
+  html+=
+    '<div class="field-group">'+
+      '<span class="field-label">Manufacturer Case or RMA Number</span>'+
+      '<input type="text" id="mfr_case_'+idx+'" placeholder="Case / RMA #">'+
+    '</div>';
+
+  if(equipMode==='new') {
+    // Shipping destination
+    html+=
+      '<div class="field-group">'+
+        '<span class="field-label">Where is the RMA being shipped to?<span class="req">*</span></span>'+
+        '<select id="rma_ship_'+idx+'" onchange="toggleShipOther('+idx+')">'+
+          '<option value="" disabled selected>Select shipping destination</option>'+
+          '<option value="Homeowner address as listed on this work order">Homeowner address as listed on this work order</option>'+
+          '<option value="Other">Other</option>'+
+        '</select>'+
+      '</div>'+
+      '<div id="ship_other_block_'+idx+'" style="display:none;flex-direction:column;gap:8px;margin-top:6px">'+
+        '<input type="text" id="ship_address_'+idx+'" placeholder="Shipping address...">'+
+        '<input type="text" id="ship_reason_'+idx+'" placeholder="Reason for alternate shipping address...">'+
+      '</div>'+
+      // Orig equipment
+      '<div class="field-group">'+
+        '<span class="field-label">Original Equipment &mdash; Make / Model</span>'+
+        '<input type="text" id="orig_make_'+idx+'" placeholder="Make / Model">'+
+      '</div>'+
+      '<div class="field-group">'+
+        '<span class="field-label">Original Equipment &mdash; MAC ID or Serial #</span>'+
+        '<input type="text" id="orig_serial_'+idx+'" placeholder="MAC ID or Serial #">'+
+      '</div>';
+  } else {
+    // Open RMA - orig serial only, plus replacement fields
+    html+=
+      '<div class="field-group">'+
+        '<span class="field-label">Original Equipment &mdash; MAC ID or Serial #</span>'+
+        '<input type="text" id="orig_serial_'+idx+'" placeholder="MAC ID or Serial #">'+
+      '</div>'+
+      '<div class="field-group">'+
+        '<span class="field-label">Replacement Equipment &mdash; Make / Model<span class="req">*</span></span>'+
+        '<input type="text" id="repl_make_'+idx+'" placeholder="Make / Model">'+
+      '</div>'+
+      '<div class="field-group">'+
+        '<span class="field-label">Replacement Equipment &mdash; MAC ID or Serial #<span class="req">*</span></span>'+
+        '<input type="text" id="repl_serial_'+idx+'" placeholder="MAC ID or Serial #">'+
+      '</div>';
+  }
+
+  fieldsWrap.innerHTML=html;
+  fieldsWrap.style.display='flex';
+
+  // Show add another button
+  var addBtn=document.getElementById('add_btn_'+idx);
+  if(addBtn) addBtn.style.display='block';
 }
+
+function removeEquipItem(idx) {
+  var el=document.getElementById('equip_item_'+idx);
+  if(el) el.parentNode.removeChild(el);
+  // Show add button on last remaining item
+  var items=document.querySelectorAll('.equip-item');
+  if(items.length>0){
+    var lastIdx=items[items.length-1].id.replace('equip_item_','');
+    var btn=document.getElementById('add_btn_'+lastIdx);
+    if(btn) btn.style.display='block';
+  }
+}
+
 function toggleShipOther(idx){
   var sel=document.getElementById('rma_ship_'+idx);
   var b=document.getElementById('ship_other_block_'+idx);
@@ -553,7 +634,8 @@ function gr(name){ var c=document.querySelector('input[name="'+name+'"]:checked'
 function saveForm(){
   var missing=[];
   var wo=gv('sf_wo');
-  if(wo.indexOf('WO-')!==0||wo.replace('WO-','').replace(/[^0-9]/g,'').length<5) missing.push('Salesforce Work Order # (must be WO- followed by at least 5 digits)');
+  if(wo.indexOf('WO-')!==0||wo.replace('WO-','').replace(/[^0-9]/g,'').length<5)
+    missing.push('Salesforce Work Order # (must be WO- followed by at least 5 digits)');
   if(!gv('home_address'))  missing.push('Street Address');
   if(!gv('home_city'))     missing.push('City');
   if(!gv('home_state'))    missing.push('State');
@@ -576,8 +658,9 @@ function saveForm(){
   if(!gr('equip_rma'))     missing.push('Equipment RMA / Replacement?');
   if(gr('equip_rma')&&gr('equip_rma')!=='No'){
     var items=document.querySelectorAll('.equip-item');
-    if(items.length===0){ missing.push('Equipment details (tap + Add equipment item)'); }
-    else{
+    if(items.length===0){
+      missing.push('Equipment details — select an equipment type to begin');
+    } else {
       items.forEach(function(item){
         var idx=item.id.replace('equip_item_','');
         if(!gv('equip_type_'+idx)) missing.push('Equipment type for item '+idx);
@@ -588,8 +671,7 @@ function saveForm(){
             if(!gv('ship_address_'+idx)) missing.push('Alternate shipping address for item '+idx);
             if(!gv('ship_reason_'+idx)) missing.push('Reason for alternate shipping for item '+idx);
           }
-        }
-        if(equipMode==='open'){
+        } else {
           if(!gv('repl_make_'+idx)) missing.push('Replacement make/model for item '+idx);
           if(!gv('repl_serial_'+idx)) missing.push('Replacement serial # for item '+idx);
         }
