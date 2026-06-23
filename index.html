@@ -77,7 +77,13 @@
 
   /* CONDITIONAL */
   .cond{display:none}
-  .cond.show{display:flex;flex-direction:column;gap:16px;grid-column:1/-1}
+  .cond.show{display:block}
+  .cond.show > .field-group,
+  .cond.show > .yn-wrap,
+  .cond.show > .banner { margin-bottom: 16px; grid-column: 1 / -1; }
+  .cond.show > .field-group:last-child,
+  .cond.show > .yn-wrap:last-child,
+  .cond.show > .banner:last-child { margin-bottom: 0; }
 
   /* CONFIRM */
   .confirm-row{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:6px;background:var(--navy)}
@@ -117,7 +123,7 @@
     .no-save-banner,.form-actions,.btn-clear-header{display:none!important}
     .section-header{-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .yn-toggle input.yes-r:checked + label,.yn-toggle input.no-r:checked + label{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .cond{display:flex!important;flex-direction:column;gap:16px}
+    .cond{display:block!important}
     .section{page-break-inside:avoid}
     .confirm-row{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   }
