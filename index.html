@@ -475,10 +475,20 @@ function setEquipMode(mode) {
   equipMode=mode;
   document.querySelectorAll('.equip-item').forEach(function(item){
     var idx=item.id.replace('equip_item_','');
+    // Replacement fields: show for open RMA only
     var rb=document.getElementById('repl_block_'+idx);
     if(rb) rb.style.display=mode==='open'?'flex':'none';
+    // Equipment type label
     var lbl=document.getElementById('equip_type_lbl_'+idx);
     if(lbl) lbl.textContent=mode==='new'?'What equipment will need to be replaced?':'Equipment type';
+    // Shipping destination: show for new RMA only
+    var shipField=document.getElementById('rma_ship_'+idx);
+    if(shipField&&shipField.closest('.field-group')) shipField.closest('.field-group').style.display=mode==='new'?'flex':'none';
+    var shipOther=document.getElementById('ship_other_block_'+idx);
+    if(shipOther) shipOther.style.display='none';
+    // Orig make/model: show for new RMA only
+    var origMake=document.getElementById('orig_make_'+idx);
+    if(origMake&&origMake.closest('.field-group')) origMake.closest('.field-group').style.display=mode==='new'?'flex':'none';
   });
 }
 
