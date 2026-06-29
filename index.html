@@ -707,10 +707,14 @@ function saveForm(){
   document.title=wo?wo+'_Residential_SVR':'Residential_Site_Visit_Report';
   window.scrollTo(0,0);
   preparePrint();
+  // Force full document height recalculation before Safari captures the page
+  document.body.style.height = 'auto';
+  document.body.style.overflow = 'visible';
+  document.documentElement.style.overflow = 'visible';
   setTimeout(function(){
     window.print();
-    setTimeout(restoreAfterPrint, 2000);
-  }, 800);
+    setTimeout(restoreAfterPrint, 5000);
+  }, 1200);
 }
 
 function preparePrint() {
