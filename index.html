@@ -721,6 +721,13 @@ function preparePrint() {
     }
   });
 
+  // 1b. Hide ALL banners from print - they are reminders for filling out the form
+  // not needed in the PDF output
+  document.querySelectorAll('.banner').forEach(function(el){
+    el.setAttribute('data-hidden-for-print','1');
+    el.style.display='none';
+  });
+
   // 2. Replace textarea content with print-friendly divs
   document.querySelectorAll('textarea').forEach(function(ta){
     var val = ta.value.trim();
