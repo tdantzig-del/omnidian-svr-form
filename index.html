@@ -116,15 +116,84 @@
   }
 
   @media print{
-    @page{margin:12mm 11mm;size:letter}
-    body{background:white}
+    @page{margin:14mm 12mm;size:letter}
+    body{background:white;font-size:10pt}
     .page-wrapper{padding:0;max-width:100%}
-    .form-header{border-radius:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .no-save-banner,.form-actions,.btn-clear-header{display:none!important}
-    .section-header{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .yn-toggle input.yes-r:checked + label,.yn-toggle input.no-r:checked + label{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+    /* Hide non-print elements */
+    .no-save-banner,.form-actions,.btn-clear-header,.btn-add-equip,.btn-remove-equip{display:none!important}
+
+    /* Header */
+    .form-header{border-radius:0;padding:10px 16px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .header-stripe{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+    /* Section headers */
+    .section-header{padding:6px 16px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+    /* Force all conditional sections to show */
     .cond{display:block!important}
-    .section{page-break-inside:avoid}
+    .cond.show{display:block!important}
+
+    /* Page break controls */
+    .section{page-break-inside:avoid;margin-bottom:4px}
+    .field-group{page-break-inside:avoid}
+    .equip-item{page-break-inside:avoid}
+    .yn-wrap{page-break-inside:avoid}
+
+    /* Textareas - expand to full content */
+    textarea{
+      height:auto!important;
+      min-height:0!important;
+      max-height:none!important;
+      overflow:visible!important;
+      white-space:pre-wrap!important;
+      word-wrap:break-word!important;
+      page-break-inside:avoid
+    }
+
+    /* Inputs */
+    input[type=text],input[type=date],input[type=time],select{
+      height:auto!important;
+      border:1px solid #ccc!important;
+      background:white!important;
+      padding:4px 8px!important;
+      font-size:9.5pt!important
+    }
+
+    /* Yes/No toggle colors in print */
+    .yn-toggle label{
+      padding:5px 14px!important;
+      font-size:9pt!important;
+      -webkit-print-color-adjust:exact!important;
+      print-color-adjust:exact!important
+    }
+    .yn-toggle input.yes-r:checked + label{
+      background:var(--yes-active)!important;
+      color:#fff!important;
+      -webkit-print-color-adjust:exact!important;
+      print-color-adjust:exact!important
+    }
+    .yn-toggle input.no-r:checked + label{
+      background:var(--no-active)!important;
+      color:#fff!important;
+      -webkit-print-color-adjust:exact!important;
+      print-color-adjust:exact!important
+    }
+
+    /* Banners */
+    .banner{-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:9pt;padding:8px 12px}
+
+    /* Equipment items */
+    .equip-item{border:1px solid #ddd!important;padding:10px!important;margin-bottom:8px!important}
+    .equip-item-header{margin-bottom:6px!important}
+
+    /* Section fields layout */
+    .section-fields{padding:10px 16px!important;gap:10px 20px!important}
+
+    /* Inline warns */
+    .inline-warn{-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:9pt}
+
+    /* Confirm row */
     .confirm-row{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   }
 </style>
