@@ -122,8 +122,8 @@
     .no-save-banner,.form-actions,.btn-clear-header,.btn-add-equip,.btn-remove-equip{display:none!important}
     .form-header{border-radius:0;padding:10px 16px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .header-stripe{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .section-header{padding:6px 16px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .section{page-break-inside:avoid;margin-bottom:4px}
+    .section-header{padding:6px 16px;page-break-after:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .section{margin-bottom:4px}
     .field-group{page-break-inside:avoid}
     .equip-item{page-break-inside:avoid;border:1px solid #ddd!important;padding:10px!important;margin-bottom:8px!important}
     .yn-wrap{page-break-inside:avoid}
@@ -774,6 +774,11 @@ function clearForm(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+function autoExpand(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = ta.scrollHeight + 'px';
+}
+
 window.addEventListener('DOMContentLoaded',function(){
   var t=new Date().toISOString().split('T')[0];
   ['visit_date','checkout_date'].forEach(function(id){var el=document.getElementById(id);if(el&&!el.value)el.value=t;});
@@ -782,6 +787,25 @@ window.addEventListener('DOMContentLoaded',function(){
   document.querySelectorAll('input[type=text]').forEach(function(inp){
     if(inp.getAttribute('placeholder')) inp.setAttribute('placeholder-orig', inp.getAttribute('placeholder'));
   });
+  // Auto-expand textareas on input
+  document.querySelectorAll('textarea').forEach(function(ta){
+    ta.addEventListener('input', function(){ autoExpand(this); });
+    ta.style.overflowY = 'hidden';
+  });
+  // Also wire up dynamically added textareas via MutationObserver
+  var observer = new MutationObserver(function(mutations){
+    mutations.forEach(function(m){
+      m.addedNodes.forEach(function(node){
+        if(node.nodeType===1){
+          node.querySelectorAll('textarea').forEach(function(ta){
+            ta.addEventListener('input', function(){ autoExpand(this); });
+            ta.style.overflowY = 'hidden';
+          });
+        }
+      });
+    });
+  });
+  observer.observe(document.body, {childList:true, subtree:true});
 });
 </script>
 </body>
