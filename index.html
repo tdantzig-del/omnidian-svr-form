@@ -775,32 +775,32 @@ function clearForm(){
 }
 
 function autoExpand(ta) {
-  ta.style.height = 'auto';
-  ta.style.height = ta.scrollHeight + 'px';
+  ta.style.height = '0px';
+  ta.style.height = (ta.scrollHeight + 2) + 'px';
+}
+
+function wireTextarea(ta) {
+  ta.style.overflowY = 'hidden';
+  ta.style.resize = 'none';
+  ['input','keyup','change','paste'].forEach(function(evt){
+    ta.addEventListener(evt, function(){ autoExpand(this); });
+  });
+  autoExpand(ta);
 }
 
 window.addEventListener('DOMContentLoaded',function(){
   var t=new Date().toISOString().split('T')[0];
   ['visit_date','checkout_date'].forEach(function(id){var el=document.getElementById(id);if(el&&!el.value)el.value=t;});
   var wo=document.getElementById('sf_wo'); if(wo&&!wo.value) wo.value='WO-';
-  // Store original placeholders for restore after print
   document.querySelectorAll('input[type=text]').forEach(function(inp){
     if(inp.getAttribute('placeholder')) inp.setAttribute('placeholder-orig', inp.getAttribute('placeholder'));
   });
-  // Auto-expand textareas on input
-  document.querySelectorAll('textarea').forEach(function(ta){
-    ta.addEventListener('input', function(){ autoExpand(this); });
-    ta.style.overflowY = 'hidden';
-  });
-  // Also wire up dynamically added textareas via MutationObserver
+  document.querySelectorAll('textarea').forEach(function(ta){ wireTextarea(ta); });
   var observer = new MutationObserver(function(mutations){
     mutations.forEach(function(m){
       m.addedNodes.forEach(function(node){
         if(node.nodeType===1){
-          node.querySelectorAll('textarea').forEach(function(ta){
-            ta.addEventListener('input', function(){ autoExpand(this); });
-            ta.style.overflowY = 'hidden';
-          });
+          node.querySelectorAll('textarea').forEach(function(ta){ wireTextarea(ta); });
         }
       });
     });
