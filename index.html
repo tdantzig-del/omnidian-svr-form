@@ -728,6 +728,9 @@ function preparePrint() {
     div.className = 'print-text';
     div.textContent = val || '';
     div.setAttribute('data-print-div','1');
+    div.style.minHeight = ta.scrollHeight + 'px';
+    div.style.whiteSpace = 'pre-wrap';
+    div.style.wordBreak = 'break-word';
     ta.parentNode.insertBefore(div, ta.nextSibling);
     ta.setAttribute('data-hidden-for-print','1');
     ta.style.display='none';
