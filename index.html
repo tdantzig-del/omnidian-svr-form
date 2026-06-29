@@ -705,11 +705,12 @@ function saveForm(){
     return;
   }
   document.title=wo?wo+'_Residential_SVR':'Residential_Site_Visit_Report';
+  window.scrollTo(0,0);
   preparePrint();
   setTimeout(function(){
     window.print();
-    setTimeout(restoreAfterPrint, 1000);
-  }, 300);
+    setTimeout(restoreAfterPrint, 2000);
+  }, 800);
 }
 
 function preparePrint() {
