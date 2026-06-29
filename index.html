@@ -119,82 +119,25 @@
     @page{margin:14mm 12mm;size:letter}
     body{background:white;font-size:10pt}
     .page-wrapper{padding:0;max-width:100%}
-
-    /* Hide non-print elements */
     .no-save-banner,.form-actions,.btn-clear-header,.btn-add-equip,.btn-remove-equip{display:none!important}
-
-    /* Header */
     .form-header{border-radius:0;padding:10px 16px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .header-stripe{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-
-    /* Section headers */
     .section-header{padding:6px 16px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-
-    /* CRITICAL: only show cond blocks that were actually opened by user */
-    .cond{display:none!important}
-    .cond.show{display:block!important}
-
-    /* Page break controls */
     .section{page-break-inside:avoid;margin-bottom:4px}
     .field-group{page-break-inside:avoid}
-    .equip-item{page-break-inside:avoid}
+    .equip-item{page-break-inside:avoid;border:1px solid #ddd!important;padding:10px!important;margin-bottom:8px!important}
     .yn-wrap{page-break-inside:avoid}
-
-    /* Textareas - expand to full content, hide placeholder */
-    textarea{
-      height:auto!important;
-      min-height:0!important;
-      max-height:none!important;
-      overflow:visible!important;
-      white-space:pre-wrap!important;
-      word-wrap:break-word!important;
-      page-break-inside:avoid
-    }
-    textarea::placeholder{color:transparent!important}
-
-    /* Inputs - hide placeholder text */
-    input::placeholder{color:transparent!important}
-    input[type=text],input[type=date],input[type=time],select{
-      height:auto!important;
-      border:1px solid #ccc!important;
-      background:white!important;
-      padding:4px 8px!important;
-      font-size:9.5pt!important
-    }
-
-    /* Yes/No toggle colors */
-    .yn-toggle label{
-      padding:5px 14px!important;
-      font-size:9pt!important;
-      -webkit-print-color-adjust:exact!important;
-      print-color-adjust:exact!important
-    }
-    .yn-toggle input.yes-r:checked + label{
-      background:var(--yes-active)!important;
-      color:#fff!important;
-      -webkit-print-color-adjust:exact!important;
-      print-color-adjust:exact!important
-    }
-    .yn-toggle input.no-r:checked + label{
-      background:var(--no-active)!important;
-      color:#fff!important;
-      -webkit-print-color-adjust:exact!important;
-      print-color-adjust:exact!important
-    }
-
-    /* Banners */
+    .yn-toggle label{padding:5px 14px!important;font-size:9pt!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+    .yn-toggle input.yes-r:checked + label{background:var(--yes-active)!important;color:#fff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+    .yn-toggle input.no-r:checked + label{background:var(--no-active)!important;color:#fff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
     .banner{-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:9pt;padding:8px 12px}
-
-    /* Equipment items */
-    .equip-item{border:1px solid #ddd!important;padding:10px!important;margin-bottom:8px!important}
-    .equip-item-header{margin-bottom:6px!important}
-
-    /* Section fields */
-    .section-fields{padding:10px 16px!important;gap:10px 20px!important}
-
-    /* Inline warns */
     .inline-warn.show{-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:9pt}
     .inline-warn{display:none!important}
+    .section-fields{padding:10px 16px!important;gap:10px 20px!important}
+    /* print-text replaces textarea content for reliable rendering */
+    .print-text{display:none;white-space:pre-wrap;word-wrap:break-word;font-family:inherit;font-size:10pt;padding:6px 8px;border:1px solid #ccc;border-radius:4px;min-height:24px;background:white;color:#131C28}
+    textarea{display:block}
+    input[type=text],input[type=date],input[type=time],select{border:1px solid #ccc!important;background:white!important;padding:4px 8px!important;font-size:9.5pt!important}
   }
 </style>
 </head>
@@ -762,7 +705,60 @@ function saveForm(){
     return;
   }
   document.title=wo?wo+'_Residential_SVR':'Residential_Site_Visit_Report';
-  window.print();
+  preparePrint();
+  setTimeout(function(){
+    window.print();
+    setTimeout(restoreAfterPrint, 1000);
+  }, 300);
+}
+
+function preparePrint() {
+  // 1. Hide all cond blocks, then show only the ones with .show class
+  document.querySelectorAll('.cond').forEach(function(el){
+    if(!el.classList.contains('show')){
+      el.setAttribute('data-hidden-for-print','1');
+      el.style.display='none';
+    }
+  });
+
+  // 2. Replace textarea content with print-friendly divs
+  document.querySelectorAll('textarea').forEach(function(ta){
+    var val = ta.value.trim();
+    var div = document.createElement('div');
+    div.className = 'print-text';
+    div.textContent = val || '';
+    div.setAttribute('data-print-div','1');
+    ta.parentNode.insertBefore(div, ta.nextSibling);
+    ta.setAttribute('data-hidden-for-print','1');
+    ta.style.display='none';
+    div.style.display='block';
+  });
+
+  // 3. Hide placeholder text on inputs by temporarily setting value
+  document.querySelectorAll('input[type=text],input[type=date],input[type=time]').forEach(function(inp){
+    if(!inp.value) {
+      inp.setAttribute('data-placeholder-hidden','1');
+      inp.setAttribute('placeholder','');
+    }
+  });
+}
+
+function restoreAfterPrint() {
+  // Restore hidden cond blocks
+  document.querySelectorAll('[data-hidden-for-print]').forEach(function(el){
+    el.removeAttribute('data-hidden-for-print');
+    el.style.display='';
+  });
+  // Remove print divs
+  document.querySelectorAll('[data-print-div]').forEach(function(el){
+    el.parentNode.removeChild(el);
+  });
+  // Restore placeholders
+  document.querySelectorAll('[data-placeholder-hidden]').forEach(function(inp){
+    inp.removeAttribute('data-placeholder-hidden');
+    var ph = inp.getAttribute('placeholder-orig') || '';
+    inp.setAttribute('placeholder', ph);
+  });
 }
 
 function clearForm(){
@@ -782,6 +778,10 @@ window.addEventListener('DOMContentLoaded',function(){
   var t=new Date().toISOString().split('T')[0];
   ['visit_date','checkout_date'].forEach(function(id){var el=document.getElementById(id);if(el&&!el.value)el.value=t;});
   var wo=document.getElementById('sf_wo'); if(wo&&!wo.value) wo.value='WO-';
+  // Store original placeholders for restore after print
+  document.querySelectorAll('input[type=text]').forEach(function(inp){
+    if(inp.getAttribute('placeholder')) inp.setAttribute('placeholder-orig', inp.getAttribute('placeholder'));
+  });
 });
 </script>
 </body>
